@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 /* grid size = 9x9 */
 #define SIZE 9
@@ -20,19 +21,33 @@ int load_grid(int grid[][SIZE], char *filename) {
 	return 0;
 }
 
+/* Comparador para a funcao qsort() */
+int comparator(const void* a, const void* b)
+{
+     int int_a = * ( (int*) a );
+     int int_b = * ( (int*) b );
+
+     if ( int_a == int_b ) return 0;
+     else if ( int_a < int_b ) return -1;
+     else return 1;
+}
+
 /* Verifica a existencia de erros nas linhas de uma matriz do sudoku */
 int check_line(int height, int width, int grid[height][width]) {
 	int errors_found = 0;
-	int sum;
-	for (int i = 0; i < height; i++) {
-		sum = 0;
-		for (int j = 0; j < width; j++)
-			sum += grid[i][j];
+	int entire_line[width];
 
-		if (sum != SUDOKU_SUM) {
-			errors_found++;
-			printf("erro na linha %d.\n", (i + 1));
-		}
+	for (int i = 0; i < height; i++) {
+		for (int j = 0; j < width; j++)
+			entire_line[j] = grid[i][j];
+
+		qsort(entire_line, width, sizeof(int), comparator);
+		for (int j = 0; j < width; j++)
+			if ((j + 1) != entire_line[j]) {
+				errors_found++;
+				printf("erro na linha %d.\n", (i + 1));
+				break;
+			}
 	}
 	return errors_found;
 }
@@ -40,16 +55,19 @@ int check_line(int height, int width, int grid[height][width]) {
 /* Verifica a existencia de erros nas colunas de uma matriz do sudoku */
 int check_col(int height, int width, int grid[height][width]) {
 	int errors_found = 0;
-	int sum;
-	for (int i = 0; i < width; i++) {
-		sum = 0;
-		for (int j = 0; j < height; j++)
-			sum += grid[j][i];
+	int entire_col[height];
 
-		if (sum != SUDOKU_SUM) {
-			errors_found++;
-			printf("erro na coluna %d.\n", (i + 1));
-		}
+	for (int i = 0; i < width; i++) {
+		for (int j = 0; j < height; j++)
+			entire_col[j] = grid[j][i];
+
+		qsort(entire_col, height, sizeof(int), comparator);
+		for (int j = 0; j < height; j++)
+			if ((j + 1) != entire_col[j]) {
+				errors_found++;
+				printf("erro na coluna %d.\n", (i + 1));
+				break;
+			}
 	}
 	return errors_found;
 }
@@ -58,19 +76,26 @@ int check_col(int height, int width, int grid[height][width]) {
 int check_region(int height, int width, int grid[height][width]) {
 	int reg_size = 3;
 	int reg_id, errors_found = 0;
-	int sum;
+	int entire_region[reg_size * reg_size];
+
 	for (int i = 0; i < height; i += reg_size) {
 		for (int j = 0; j < width; j += reg_size) {
-			sum = 0;
 
+			int aux_counter = 0;
 			for (int k = i; k < (i + reg_size); k++)
-				for (int w = j; w < (j + reg_size); w++)
-					sum += grid[k][w];
+				for (int w = j; w < (j + reg_size); w++){
+					entire_region[aux_counter] = grid[k][w];
+					aux_counter++;
+				}
 
-			if (sum != SUDOKU_SUM) {
-				errors_found++;
-				printf("erro na região %d.\n", reg_id);
-			}
+			qsort(entire_region, (reg_size * reg_size), sizeof(int), comparator);
+			for (int k = 0; k < (reg_size * reg_size); k++)
+				if ((k + 1) != entire_region[k]) {
+					errors_found++;
+					printf("erro na regiao %d.\n", reg_id);
+					break;
+				}
+
 			reg_id++;
 		}
 	}
