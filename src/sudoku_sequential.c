@@ -3,8 +3,9 @@
 
 /* grid size = 9x9 */
 #define SIZE 9
-/* sum of numbers, from 1 to 9 */
-#define SUDOKU_SUM 45
+/* just to facilitate */
+#define true 1
+#define false 0
 
 /* Funcao que le um grid do arquivo "filename" e o armazena em uma matriz */
 int load_grid(int grid[][SIZE], char *filename) {
@@ -35,18 +36,19 @@ int comparator(const void* a, const void* b)
 /* Verifica a existencia de erros nas linhas de uma matriz do sudoku */
 int check_line(int height, int width, int grid[height][width]) {
 	int errors_found = 0;
-	int entire_line[width];
+	int already_checked[width];
 
 	for (int i = 0; i < height; i++) {
 		for (int j = 0; j < width; j++)
-			entire_line[j] = grid[i][j];
+			already_checked[j] = false;
 
-		qsort(entire_line, width, sizeof(int), comparator);
 		for (int j = 0; j < width; j++)
-			if ((j + 1) != entire_line[j]) {
+			if (already_checked[grid[i][j] - 1]) {
 				errors_found++;
 				printf("erro na linha %d.\n", (i + 1));
 				break;
+			} else {
+				already_checked[grid[i][j] - 1] = true;
 			}
 	}
 	return errors_found;
@@ -55,18 +57,19 @@ int check_line(int height, int width, int grid[height][width]) {
 /* Verifica a existencia de erros nas colunas de uma matriz do sudoku */
 int check_col(int height, int width, int grid[height][width]) {
 	int errors_found = 0;
-	int entire_col[height];
+	int already_checked[height];
 
 	for (int i = 0; i < width; i++) {
 		for (int j = 0; j < height; j++)
-			entire_col[j] = grid[j][i];
+			already_checked[j] = false;
 
-		qsort(entire_col, height, sizeof(int), comparator);
 		for (int j = 0; j < height; j++)
-			if ((j + 1) != entire_col[j]) {
+			if (already_checked[grid[j][i] - 1]) {
 				errors_found++;
 				printf("erro na coluna %d.\n", (i + 1));
 				break;
+			} else {
+				already_checked[grid[j][i] - 1] = true;
 			}
 	}
 	return errors_found;
@@ -76,26 +79,24 @@ int check_col(int height, int width, int grid[height][width]) {
 int check_region(int height, int width, int grid[height][width]) {
 	int reg_size = 3;
 	int reg_id, errors_found = 0;
-	int entire_region[reg_size * reg_size];
+	int already_checked[height];
 
 	for (int i = 0; i < height; i += reg_size) {
 		for (int j = 0; j < width; j += reg_size) {
 
-			int aux_counter = 0;
+			for (int k = 0; k < height; k++)
+				already_checked[k] = false;
+
 			for (int k = i; k < (i + reg_size); k++)
 				for (int w = j; w < (j + reg_size); w++){
-					entire_region[aux_counter] = grid[k][w];
-					aux_counter++;
+					if (already_checked[grid[k][w] - 1]) {
+						errors_found++;
+						printf("erro na regiao %d.\n", reg_id);
+						break;
+					} else {
+						already_checked[grid[k][w] - 1] = true;
+					}
 				}
-
-			qsort(entire_region, (reg_size * reg_size), sizeof(int), comparator);
-			for (int k = 0; k < (reg_size * reg_size); k++)
-				if ((k + 1) != entire_region[k]) {
-					errors_found++;
-					printf("erro na regiao %d.\n", reg_id);
-					break;
-				}
-
 			reg_id++;
 		}
 	}
