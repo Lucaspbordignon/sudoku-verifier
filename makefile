@@ -2,7 +2,7 @@ CFLAGS = -Wall -Wno-format -std=c11 -lpthread -I include/
 
 all: main
 
-main: src/main.c src/utils.c
+main: src/main.c src/utils.c src/check.c
 	$(CC) $(CFLAGS) $^ -o main
 
 test: main
