@@ -1,13 +1,16 @@
-CFLAGS = -Wall -Wno-format -std=c11 -lpthread -I include/
+.PHONY: test clean
+
+CFLAGS = -Wall -Wextra -Wno-format -std=c11 -lpthread -I include
 
 all: main
 
-main: src/main.c src/utils.c src/check.c
-	$(CC) $(CFLAGS) $^ -o main
+main: src/*.c
+	$(CC) $(CFLAGS) $^ -o $@
 
 test: main
-	@./main test/input_grid_correto.txt
-	@./main test/input_grid_errado.txt
+	./main test/input_grid_correto.txt 4
+	@echo
+	./main test/input_grid_errado.txt 4
 
 clean:
 	rm main
