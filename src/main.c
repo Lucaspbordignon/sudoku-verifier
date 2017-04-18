@@ -59,7 +59,7 @@ int main(int argc, char *argv[]) {
 
 	// Create threads
 	for (uint8_t i = 0; i < n_threads; i++) {
-		pthread_create(&threads[i], NULL, worker, (void*) &i);
+		pthread_create(&threads[i], NULL, worker, (void*)i);
 	}
 
 	// Join threads
@@ -78,7 +78,7 @@ int main(int argc, char *argv[]) {
 }
 
 void* worker(void* arg) {
-	uint8_t tid = *(uint8_t*)arg;
+	uint8_t tid = (uint8_t*)arg;
 	uint8_t e;
 	job* j = NULL;
 
@@ -90,11 +90,11 @@ void* worker(void* arg) {
 		pthread_mutex_unlock(&queue_lock);
 
 		if (j->t == line) {
-			e = check_line(j->pos, grid, tid);
+			e = check_line(j->pos, grid, tid + 1);
 		} else if (j->t == column) {
-			e = check_col(j->pos, grid, tid);
+			e = check_col(j->pos, grid, tid + 1);
 		} else {
-			e = check_region(j->pos, grid, tid);
+			e = check_region(j->pos, grid, tid + 1);
 		}
 
 		if (e > 0) {

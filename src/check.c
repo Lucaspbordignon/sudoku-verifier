@@ -9,7 +9,8 @@ uint8_t check_line(uint8_t line, uint8_t grid[SIZE][SIZE], unsigned int id) {
 	bool already_checked[SIZE] = {false};
 
 	for (uint8_t i = 0; i < SIZE; i++) {
-		if (already_checked[grid[line][i] - 1]) {
+		if (already_checked[grid[line][i] - 1] || grid[line][i] == 0 ||
+				grid[line][i] > SIZE) {
 			errors_found++;
 			printf("Thread %u: erro na linha %u.\n", id, line + 1);
 		} else {
@@ -25,7 +26,8 @@ uint8_t check_col(uint8_t col, uint8_t grid[SIZE][SIZE], unsigned int id) {
 	bool already_checked[SIZE] = {false};
 
 	for (uint8_t i = 0; i < SIZE; i++) {
-		if (already_checked[grid[i][col] - 1]) {
+		if (already_checked[grid[i][col] - 1] || grid[i][col] == 0 ||
+				grid[i][col] > SIZE) {
 			errors_found++;
 			printf("Thread %u: erro na coluna %u.\n", id, col + 1);
 		} else {
@@ -45,7 +47,8 @@ uint8_t check_region(uint8_t region, uint8_t grid[][SIZE], unsigned int id) {
 
 	for (uint8_t i = y*3; i < (y*3)+3; i++) {
 		for (uint8_t j = x*3; j < (x*3)+3; j++) {
-			if (already_checked[grid[i][j] - 1]) {
+			if (already_checked[grid[i][j] - 1] || grid[i][j] == 0 ||
+					grid[i][j] > 9) {
 				errors_found++;
 				printf("Thread %u: erro na regiao %u.\n", id, region + 1);
 			} else {
