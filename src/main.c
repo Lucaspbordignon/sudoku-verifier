@@ -83,12 +83,18 @@ void* worker(void* arg) {
 	uint8_t e;
 	job* j = NULL;
 
-	while (next != N_JOBS) { // While there is a job
+	while (1) {
 		pthread_mutex_lock(&queue_lock);
-		// Gets the next job on the queue
-		j = jobs + next;
-		next++;
-		pthread_mutex_unlock(&queue_lock);
+		if (next < N_JOBS) {
+			// Gets the next job on the queue
+			j = jobs + next;
+			next++;
+			pthread_mutex_unlock(&queue_lock);
+		} else {
+			// All jobs are done
+			pthread_mutex_unlock(&queue_lock);
+			break;
+		}
 
 		if (j->t == line) {
 			e = check_line(j->pos, grid);
