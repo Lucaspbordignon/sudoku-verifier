@@ -51,19 +51,21 @@ int main(int argc, char *argv[]) {
 		jobs[i+18].t = region;
 	}
 
-	int n_threads = atoi(argv[2]);
+	unsigned int n_threads = atoi(argv[2]);
 	pthread_t* threads = malloc(n_threads*sizeof(pthread_t));
 
 	pthread_mutex_init(&queue_lock, NULL);
 	pthread_mutex_init(&errors_lock, NULL);
 
 	// Create threads
-	for (uint8_t i = 0; i < n_threads; i++) {
-		pthread_create(&threads[i], NULL, worker, (void*)i);
+	unsigned int id[n_threads];
+	for (unsigned int i = 0; i < n_threads; i++) {
+		id[i] = i;
+		pthread_create(&threads[i], NULL, worker, (void*) (id + i));
 	}
 
 	// Join threads
-	for (uint8_t i = 0; i < n_threads; i++) {
+	for (unsigned int i = 0; i < n_threads; i++) {
 		pthread_join(threads[i], NULL);
 	}
 
@@ -78,7 +80,7 @@ int main(int argc, char *argv[]) {
 }
 
 void* worker(void* arg) {
-	uint8_t tid = (uint8_t*)arg;
+	unsigned int id = *((unsigned int*) arg);
 	uint8_t e;
 	job* j = NULL;
 
@@ -96,11 +98,11 @@ void* worker(void* arg) {
 		}
 
 		if (j->t == line) {
-			e = check_line(j->pos, grid, tid + 1);
+			e = check_line(j->pos, grid, id + 1);
 		} else if (j->t == column) {
-			e = check_col(j->pos, grid, tid + 1);
+			e = check_col(j->pos, grid, id + 1);
 		} else {
-			e = check_region(j->pos, grid, tid + 1);
+			e = check_region(j->pos, grid, id + 1);
 		}
 
 		if (e > 0) {
