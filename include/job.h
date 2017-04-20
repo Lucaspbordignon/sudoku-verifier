@@ -1,5 +1,5 @@
-#ifndef JOBS_H
-#define JOBS_H
+#ifndef JOB_H
+#define JOB_H
 
 typedef enum {
 	line,

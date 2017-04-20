@@ -16,8 +16,8 @@ uint8_t grid[SIZE][SIZE]; // The sudoku grid itself
 uint8_t errors = 0; // Errors found in the grid
 
 /*
- * This is basically a queue that holds the jobs that need to be done to verify
- * the sudoku grid, each job is to verify a line, column or 'region'
+ * This is basically a queue that holds the 'jobs' that need to be done to
+ * verify the sudoku grid, each job is to verify a line, column or 'region'
  */
 job jobs[N_JOBS];
 uint8_t next = 0;
@@ -28,8 +28,7 @@ pthread_mutex_t errors_lock;
 int main(int argc, char *argv[]) {
 
 	if(argc != 3) {
-		printf("Erro: informe o arquivo de entrada!\n"
-				"Uso: %s <arquivo de entrada> <numero de threads>\n\n",
+		printf("Uso: %s <arquivo de entrada> <numero de threads>\n\n",
 				argv[0]);
 		return 1;
 	}
@@ -58,10 +57,10 @@ int main(int argc, char *argv[]) {
 	pthread_mutex_init(&errors_lock, NULL);
 
 	// Create threads
-	unsigned int id[n_threads];
+	unsigned int thread_ids[n_threads];
 	for (unsigned int i = 0; i < n_threads; i++) {
-		id[i] = i;
-		pthread_create(&threads[i], NULL, worker, (void*) (id + i));
+		thread_ids[i] = i + 1;
+		pthread_create(&threads[i], NULL, worker, (void*) &thread_ids[i]);
 	}
 
 	// Join threads
@@ -80,7 +79,7 @@ int main(int argc, char *argv[]) {
 }
 
 void* worker(void* arg) {
-	unsigned int id = *((unsigned int*) arg);
+	unsigned int thread_id = *((unsigned int*) arg);
 	uint8_t e;
 	job* j = NULL;
 
@@ -97,13 +96,10 @@ void* worker(void* arg) {
 			break;
 		}
 
-		if (j->t == line) {
-			e = check_line(j->pos, grid, id + 1);
-		} else if (j->t == column) {
-			e = check_col(j->pos, grid, id + 1);
-		} else {
-			e = check_region(j->pos, grid, id + 1);
-		}
+		// Do the check correspondent to the acquired job
+		e = j->t == region ?
+			check_region(j->pos, grid, thread_id) :
+			check_line_or_col(j->pos, grid, thread_id, j->t);
 
 		if (e > 0) {
 			// if found errors, update `errors`
