@@ -30,12 +30,19 @@ int main(int argc, char *argv[]) {
 	if(argc != 3) {
 		printf("Uso: %s <arquivo de entrada> <numero de threads>\n\n",
 				argv[0]);
-		return 1;
+		return EXIT_FAILURE;
 	}
 
 	// Reads the grid from a file, and prints it
-	if(load_grid(grid, argv[1])) {
-		printf("Quebra-cabecas fornecido:\n");
+	int r = load_grid(grid, argv[1]);
+	if (r == 1) {
+		puts("Não foi possível abrir o arquivo");
+		return EXIT_FAILURE;
+	} else if (r == 2) {
+		puts("Grid inválido");
+		return EXIT_FAILURE;
+	} else {
+		puts("Quebra-cabecas fornecido:");
 		print_grid(grid);
 	}
 
@@ -74,7 +81,7 @@ int main(int argc, char *argv[]) {
 	free(threads);
 
 	printf("Erros encontrados: %u.\n", errors);
-	return 0;
+	return EXIT_SUCCESS;
 
 }
 
