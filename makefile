@@ -1,11 +1,14 @@
 .PHONY: test clean
 
-CFLAGS = -Wall -Wextra -Wno-format -std=c11 -lpthread -I include
+CFLAGS = -march=native -Wall -Wextra -std=c11 -lpthread -I include
 
 all: main
 
 main: src/*.c
 	$(CC) $(CFLAGS) $^ -o $@
+
+debug: CFLAGS += -g
+debug: main
 
 test: main
 	./main test/input_grid_correto.txt 4

@@ -10,7 +10,7 @@ int load_grid(uint8_t grid[SIZE][SIZE], char *filename) {
 	if (input_file != NULL) {
 		for(uint8_t i = 0; i < SIZE; i++) {
 			for(uint8_t j = 0; j < SIZE; j++) {
-				size_t n;
+				unsigned int n;
 				if (fscanf(input_file, "%u", &n) == -1 || n - 1 >= SIZE) {
 					// reached EOF or number out of range (1..9)
 					fclose(input_file);
